@@ -130,3 +130,6 @@ dmypy.json
 
 # .vs folder
 .vs
+
+# settings file
+settings.ini
