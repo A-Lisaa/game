@@ -1,17 +1,17 @@
 #!/usr/bin/python3
 #-*- coding: utf-8 -*-
 
-import xml_parser
-import pygame
+from pygame.image import load
+from xml_parser import parse
 
-def map_drawer(scr, path_to_map, x = 0, y = 0, path_to_squares = "images/squares.png", count_of_lines = 16, count_of_column = 30, size_of_plate = 16):
+def map_drawer(scr, path_to_map, x = 0, y = 0, path_to_squares = "images/squares.png", count_of_lines = 16, count_of_column = 30, size_of_plate = 16, shift = 5):
     y_position = y
 
     list_of_squares = []
     map = []
 
-    parsed_xml = xml_parser.parse(path_to_map)
-    squares = pygame.image.load(path_to_squares)
+    parsed_xml = parse(path_to_map)
+    squares = load(path_to_squares)
 
     # Создаем список с координатами квадратов для карты
     for y_position_of_square in range(0, count_of_lines * size_of_plate, size_of_plate):
@@ -32,10 +32,10 @@ def map_drawer(scr, path_to_map, x = 0, y = 0, path_to_squares = "images/squares
         x_position = x
         for plate_num in line:
             try:
-                plate = list_of_squares[int(plate_num) - 5]
+                plate = list_of_squares[int(plate_num) - shift]
                 scr.blit(squares, (x_position, y_position), (plate[0], plate[1], size_of_plate, size_of_plate))
             except Exception:
-                no_plate = pygame.image.load("images/no_plate.png")
+                no_plate = load("images/no_plate.png")
                 scr.blit(no_plate, (x_position, y_position))
             x_position += size_of_plate
         y_position += size_of_plate

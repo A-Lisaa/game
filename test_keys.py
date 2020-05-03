@@ -8,6 +8,7 @@ import pygame
 from pygame.locals import *
 from map_drawer import *
 from text import *
+from music import *
 from set_settings import *
 
 pygame.init()
@@ -25,10 +26,10 @@ SCREEN_HEIGHT = ctypes.windll.user32.GetSystemMetrics(0)
 SCREEN_WIDTH = ctypes.windll.user32.GetSystemMetrics(1)
 
 input = {"exit": get_key("Input", "exit"),
-         "forward": get_key("Input", "move_forward"),
-         "backward": get_key("Input", "move_backward"),
-         "leftward": get_key("Input", "move_leftward"),
-         "rightward": get_key("Input", "move_rightward")}
+         "move_forward": get_key("Input", "move_forward"),
+         "move_backward": get_key("Input", "move_backward"),
+         "move_leftward": get_key("Input", "move_leftward"),
+         "move_rightward": get_key("Input", "move_rightward")}
 position = (SCREEN_HEIGHT / 2, SCREEN_WIDTH / 2)
 start_position = position
 x_pos = start_position[0] - position[0]
@@ -80,16 +81,16 @@ character = Character(actor_image, all_characters, (1000, 650))
 
 def calculation_position(direction, position, step = step, actor_image = actor_image):
     (x, y) = position
-    if direction == input["leftward"]:
+    if direction == input["move_leftward"]:
         x -= step
         actor_image = "images/samantha_left.png"
-    elif direction == input["rightward"]:
+    elif direction == input["move_rightward"]:
         x += step
         actor_image = "images/samantha_right.png"
-    if direction == input["forward"]:
+    if direction == input["move_forward"]:
         y -= step
         actor_image = "images/samantha_left.png" # forward
-    elif direction == input["backward"]:
+    elif direction == input["move_backward"]:
         y += step
         actor_image = "images/samantha_back.png"
     return actor_image, (x, y)
@@ -100,6 +101,8 @@ all_characters.draw(scr)
 move = False
 menu = False
 game_run = True
+
+bg_music("music/chapter_four.mp3")
 
 while game_run:
     clock.tick(FPS)
@@ -117,8 +120,9 @@ while game_run:
             if event.type == KEYDOWN:
                 if event.key == input["exit"]:
                     game_run = False
-                direction = event.key
-                move = True
+                elif event.key in (input["move_forward"], input["move_backward"], input["move_leftward"], input["move_rightward"]):
+                    direction = event.key
+                    move = True
             if event.type == KEYUP:
                 move = False
 
@@ -133,6 +137,8 @@ while game_run:
             position = result[1]
             x_pos = start_position[0] - position[0]
             y_pos = start_position[1] - position[1]
+            if pygame.sprite.spritecollideany(actor, all_characters):
+                bg_music("music/afterlife.mp3")
             actor.update(actor_image)
             all_characters.update(actor_image, position, old_position)
             text(scr, "Alice", "You're walking")
