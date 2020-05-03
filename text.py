@@ -4,9 +4,8 @@ import pygame
 from pygame.locals import *
 
 def text(screen, name, phrase, color_of_phrase = (255, 255, 255), color_of_name = (255, 255, 255), smooth = 1, alpha = 150):
-    bg = pygame.Surface((1920, 230))
-    bg.set_alpha(alpha)
-    bg.fill((150, 0, 0))
+    bg = pygame.Surface((1920, 230), SRCALPHA)
+    bg.fill((150, 0, 0, alpha))
     font = pygame.font.SysFont(None, 36)
     say = font.render(phrase, smooth, color_of_phrase)
     name = font.render(name, smooth, color_of_name)

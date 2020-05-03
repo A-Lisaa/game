@@ -9,6 +9,7 @@ from pygame.locals import *
 from map_drawer import *
 from text import *
 from music import *
+from buttons import *
 from set_settings import *
 
 pygame.init()
@@ -45,8 +46,6 @@ pygame.display.set_icon(pygame.image.load("images/icon.ico"))
 clock = pygame.time.Clock()
 scr = pygame.display.set_mode((0, 0), FULLSCREEN)
 
-map_drawer(scr, "maps/map0.xml")
-
 all_characters = pygame.sprite.Group()
 
 class Character(pygame.sprite.Sprite):
@@ -78,6 +77,8 @@ class Actor:
 
 actor = Actor(actor_image)
 character = Character(actor_image, all_characters, (1000, 650))
+new_game_button = Text_Button()
+settings_button = Text_Button()
 
 def calculation_position(direction, position, step = step, actor_image = actor_image):
     (x, y) = position
@@ -95,31 +96,49 @@ def calculation_position(direction, position, step = step, actor_image = actor_i
         actor_image = "images/samantha_back.png"
     return actor_image, (x, y)
 
-scr.blit(actor.image, actor.rect)
-all_characters.draw(scr)
-
 move = False
-menu = False
-game_run = True
+
+menu = True
+settings = False
+game = False
+
+main_cycle = True
 
 bg_music("music/chapter_four.mp3")
 
-while game_run:
+while main_cycle:
     clock.tick(FPS)
+
     if menu:
-        for event in pygame.event.get():
-            if event.type == KEYDOWN:
-                if event.key == K_c:
-                    menu = False
-                else:
-                    update_setting("Input", "move_forward", str(f"{event.key} # {pygame.key.name(event.key)}"))
-    else:
+        scr.fill((0, 255, 255))
+        new_game_button.create_button(scr, "Начать игру", SCREEN_HEIGHT / 2 - 200 / 2, SCREEN_WIDTH / 2 - 125, 200, 100)
+        settings_button.create_button(scr, "Настройки", SCREEN_HEIGHT / 2 - 200 / 2, SCREEN_WIDTH / 2, 200, 100)
         for event in pygame.event.get():
             if event.type == QUIT:
-                game_run = False
+                main_cycle = False
             if event.type == KEYDOWN:
                 if event.key == input["exit"]:
-                    game_run = False
+                    main_cycle = False
+            if event.type == MOUSEBUTTONDOWN:
+                if new_game_button.pressed(pygame.mouse.get_pos()):
+                    menu = False
+                    game = True
+                if settings_button.pressed(pygame.mouse.get_pos()):
+                    menu = False
+                    settings = True
+    elif settings:
+        #update_setting("Input", "move_forward", str(f"{event.key} # {pygame.key.name(event.key)}"))
+        settings = False
+    elif game:
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                main_cycle = False
+            if event.type == KEYDOWN:
+                if event.key == input["exit"]:
+                    main_cycle = False
+                elif event.key == K_0:
+                    game = False
+                    menu = True
                 elif event.key in (input["move_forward"], input["move_backward"], input["move_leftward"], input["move_rightward"]):
                     direction = event.key
                     move = True
