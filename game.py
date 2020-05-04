@@ -15,28 +15,32 @@ from set_settings import *
 pygame.init()
 pygame.mixer.init()
 
+input = {}
+
+def default_settings():
+    update_setting("Input", "pause", str(f"{K_ESCAPE} # {pygame.key.name(K_ESCAPE)}"))
+    update_setting("Input", "move_forward", str(f"{K_w} # {pygame.key.name(K_w)}"))
+    update_setting("Input", "move_backward", str(f"{K_s} # {pygame.key.name(K_s)}"))
+    update_setting("Input", "move_leftward", str(f"{K_a} # {pygame.key.name(K_a)}"))
+    update_setting("Input", "move_rightward", str(f"{K_d} # {pygame.key.name(K_d)}"))
+    get_all_keys_from_section(input)
+
 if not os.path.exists("settings.ini"):
-    update_setting("Input", "pause", str(f"{K_ESCAPE} # escape"))
-    update_setting("Input", "move_forward", str(f"{K_w} # w"))
-    update_setting("Input", "move_backward", str(f"{K_s} # s"))
-    update_setting("Input", "move_leftward", str(f"{K_a} # a"))
-    update_setting("Input", "move_rightward", str(f"{K_d} # d"))
+    default_settings()
+
+get_all_keys_from_section(input)
 
 FPS = 60
 SCREEN_HEIGHT = ctypes.windll.user32.GetSystemMetrics(0)
 SCREEN_WIDTH = ctypes.windll.user32.GetSystemMetrics(1)
 
-input = {"pause": get_key("Input", "pause"),
-         "move_forward": get_key("Input", "move_forward"),
-         "move_backward": get_key("Input", "move_backward"),
-         "move_leftward": get_key("Input", "move_leftward"),
-         "move_rightward": get_key("Input", "move_rightward")}
 position = (SCREEN_HEIGHT / 2, SCREEN_WIDTH / 2)
 start_position = position
 x_pos = start_position[0] - position[0]
 y_pos = start_position[1] - position[1]
 step = 16
 size_of_characters = (16, 16)
+menu_color = (0, 255, 255) # циановый
 actor_image = "images/samantha_back.png"
 
 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID()
@@ -88,6 +92,7 @@ quit_button = Text_Button()
 resume_game_button = Text_Button()
 pause_button = Text_Button()
 main_menu_button = Text_Button()
+default_button = Text_Button()
 
 change_move_forward_button = Text_Button()
 change_move_backward_button = Text_Button()
@@ -135,7 +140,7 @@ while main_cycle:
     clock.tick(FPS)
     if main_menu:
         scr.blit(main_menu_screen, (0, 0))
-        main_menu_screen.fill((0, 255, 255))
+        main_menu_screen.fill(menu_color)
         new_game_button.create_button(main_menu_screen, "Начать игру", SCREEN_HEIGHT / 2 - 200 / 2, SCREEN_WIDTH / 2 - 250, 200, 100)
         settings_button.create_button(main_menu_screen, "Настройки", SCREEN_HEIGHT / 2 - 200 / 2, SCREEN_WIDTH / 2 - 125, 200, 100)
         quit_button.create_button(main_menu_screen, "Выход", SCREEN_HEIGHT / 2 - 200 / 2, SCREEN_WIDTH / 2, 200, 100)
@@ -151,12 +156,13 @@ while main_cycle:
                     main_cycle = False
     elif settings:
         scr.blit(settings_screen, (0, 0))
-        settings_screen.fill((0, 255, 255))
+        settings_screen.fill(menu_color)
         change_move_forward_button.create_button(settings_screen, f"Вперед ({pygame.key.name(input['move_forward'])})", SCREEN_HEIGHT / 2 - 200 / 2, SCREEN_WIDTH / 2 - 500, 200, 100)
         change_move_backward_button.create_button(settings_screen, f"Назад ({pygame.key.name(input['move_backward'])})", SCREEN_HEIGHT / 2 - 200 / 2, SCREEN_WIDTH / 2 - 375, 200, 100)
         change_move_leftward_button.create_button(settings_screen, f"Влево ({pygame.key.name(input['move_leftward'])})", SCREEN_HEIGHT / 2 - 200 / 2, SCREEN_WIDTH / 2 - 250, 200, 100)
         change_move_rightward_button.create_button(settings_screen, f"Вправо ({pygame.key.name(input['move_rightward'])})", SCREEN_HEIGHT / 2 - 200 / 2, SCREEN_WIDTH / 2 - 125, 200, 100)
         change_pause_button.create_button(settings_screen, f"Пауза ({pygame.key.name(input['pause'])})", SCREEN_HEIGHT / 2 - 200 / 2, SCREEN_WIDTH / 2, 200, 100)
+        default_button.create_button(settings_screen, "По умолчанию", SCREEN_HEIGHT - 225, SCREEN_WIDTH - 250, 200, 100)
         main_menu_button.create_button(settings_screen, "В главное меню", SCREEN_HEIGHT - 225, SCREEN_WIDTH - 125, 200, 100)
         for event in pygame.event.get():
             if event.type == MOUSEBUTTONDOWN:
@@ -170,12 +176,14 @@ while main_cycle:
                     change_button("move_rightward")
                 if change_pause_button.pressed(pygame.mouse.get_pos()):
                     change_button("pause")
+                if default_button.pressed(pygame.mouse.get_pos()):
+                    default_settings()
                 if main_menu_button.pressed(pygame.mouse.get_pos()):
                     settings = False
                     main_menu = True
     elif pause:
         scr.blit(pause_screen, (0, 0))
-        pause_screen.fill((0, 255, 255))
+        pause_screen.fill(menu_color)
         resume_game_button.create_button(pause_screen, "Продолжить игру", SCREEN_HEIGHT / 2 - 200 / 2, SCREEN_WIDTH / 2 - 250, 200, 100)
         main_menu_button.create_button(pause_screen, "В главное меню", SCREEN_HEIGHT / 2 - 200 / 2, SCREEN_WIDTH / 2 - 125, 200, 100)
         quit_button.create_button(pause_screen, "Выход", SCREEN_HEIGHT / 2 - 200 / 2, SCREEN_WIDTH / 2, 200, 100)

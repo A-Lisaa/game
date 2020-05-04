@@ -42,3 +42,16 @@ def get_key(section, setting, delimiter = " ", path = path_to_settings):
     second_step = first_step[:first_step.find(delimiter)]
     third_step = int(second_step)
     return third_step
+
+def get_all_keys_from_section(input, delimiter = " ", input_section = 0):
+    """
+    Возвращает все кнопки
+    """
+    config = get_config()
+
+    items = config.items(config.sections()[input_section])
+
+    for i in range(len(items)):
+        input[items[i][0]] = int(items[i][1][:items[i][1].find(delimiter)])
+
+    return input
