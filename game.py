@@ -105,7 +105,7 @@ def calculation_position(direction, position, step = step, actor_image = actor_i
         actor_image = "images/samantha_right.png"
     if direction == input["move_forward"]:
         y -= step
-        actor_image = "images/samantha_left.png" # forward
+        actor_image = "images/samantha_forward.png"
     elif direction == input["move_backward"]:
         y += step
         actor_image = "images/samantha_back.png"
