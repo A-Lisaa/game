@@ -6,10 +6,11 @@ import sys
 import os
 import pygame
 from pygame.locals import *
-from map_drawer import *
-from text import *
-from music import *
-from buttons import *
+from map_drawer import map_drawer
+from text import text
+from music import bg_music
+from buttons import Text_Button
+from default_settings import set_default_settings
 from set_settings import *
 
 pygame.init()
@@ -17,29 +18,19 @@ pygame.mixer.init()
 
 input_keys = {}
 
-def default_settings():
-    update_setting("Input", "pause", str(f"{K_ESCAPE} # {pygame.key.name(K_ESCAPE)}"))
-    update_setting("Input", "move_forward", str(f"{K_w} # {pygame.key.name(K_w)}"))
-    update_setting("Input", "move_backward", str(f"{K_s} # {pygame.key.name(K_s)}"))
-    update_setting("Input", "move_leftward", str(f"{K_a} # {pygame.key.name(K_a)}"))
-    update_setting("Input", "move_rightward", str(f"{K_d} # {pygame.key.name(K_d)}"))
-    get_all_keys_from_section(input_keys)
-
 if not os.path.exists("settings.ini"):
-    default_settings()
+    set_default_settings()
 
-get_all_keys_from_section(input_keys)
+get_all_keys(input_keys)
 
-FPS = 60
-SCREEN_HEIGHT = ctypes.windll.user32.GetSystemMetrics(0)
-SCREEN_WIDTH = ctypes.windll.user32.GetSystemMetrics(1)
+FPS = int(get_setting("Graphics", "FPS"))
+SCREEN_HEIGHT = int(get_setting("Graphics", "SCREEN_HEIGHT"))
+SCREEN_WIDTH = int(get_setting("Graphics", "SCREEN_WIDTH"))
 
 position = (SCREEN_HEIGHT / 2, SCREEN_WIDTH / 2)
 start_position = position
 x_pos = start_position[0] - position[0]
 y_pos = start_position[1] - position[1]
-step = 16
-size_of_characters = (16, 16)
 menu_color = (0, 255, 255) # циановый
 actor_image = "images/samantha_back.png"
 
@@ -57,31 +48,36 @@ settings_screen = pygame.Surface((SCREEN_HEIGHT, SCREEN_WIDTH), SRCALPHA)
 all_characters = pygame.sprite.Group()
 
 class Character(pygame.sprite.Sprite):
-    def __init__(self, actor_image_filename, group, position_of_actor, size_of_characters = size_of_characters):
+    size_of_characters = (int(get_setting("Graphics", "size")), int(get_setting("Graphics", "size")))
+    step = int(get_setting("Graphics", "size"))
+
+    def __init__(self, actor_image_filename, group, position_of_actor):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.transform.scale(pygame.image.load(actor_image_filename), size_of_characters)
+        self.image = pygame.transform.scale(pygame.image.load(actor_image_filename), Character.size_of_characters)
         self.rect = self.image.get_rect(center = position_of_actor)
         self.add(group)
 
-    def update(self, actor_image_filename, new_position, old_position, step = step, size_of_characters = size_of_characters):
+    def update(self, actor_image_filename, new_position, old_position):
         if old_position[0] < new_position[0]:
-            self.rect.x -= step
+            self.rect.x -= Character.step
         elif old_position[0] > new_position[0]:
-            self.rect.x += step
+            self.rect.x += Character.step
         if old_position[1] < new_position[1]:
-            self.rect.y -= step
+            self.rect.y -= Character.step
         elif old_position[1] > new_position[1]:
-            self.rect.y += step
-        self.image = pygame.transform.scale(pygame.image.load(actor_image_filename), size_of_characters)
+            self.rect.y += Character.step
+        self.image = pygame.transform.scale(pygame.image.load(actor_image_filename), Character.size_of_characters)
 
 class Actor:
-    def __init__(self, actor_image_filename, size_of_actor = size_of_characters):
+    size_of_actor = (int(get_setting("Graphics", "size")), int(get_setting("Graphics", "size")))
+
+    def __init__(self, actor_image_filename):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.transform.scale(pygame.image.load(actor_image_filename), size_of_actor)
+        self.image = pygame.transform.scale(pygame.image.load(actor_image_filename), Actor.size_of_actor)
         self.rect = self.image.get_rect(topleft = (SCREEN_HEIGHT / 2, SCREEN_WIDTH / 2))
 
-    def update(self, actor_image_filename, size_of_actor = size_of_characters):
-        self.image = pygame.transform.scale(pygame.image.load(actor_image_filename), size_of_actor)
+    def update(self, actor_image_filename):
+        self.image = pygame.transform.scale(pygame.image.load(actor_image_filename), Actor.size_of_actor)
 
 actor = Actor(actor_image)
 character = Character(actor_image, all_characters, (1000, 650))
@@ -100,7 +96,7 @@ change_move_leftward_button = Text_Button()
 change_move_rightward_button = Text_Button()
 change_pause_button = Text_Button()
 
-def calculation_position(direction, position, step = step, actor_image = actor_image):
+def calculation_position(direction, position, step = int(get_setting("Graphics", "size")), actor_image = actor_image):
     (x, y) = position
     if direction == input_keys["move_leftward"]:
         x -= step
@@ -118,11 +114,20 @@ def calculation_position(direction, position, step = step, actor_image = actor_i
 
 def change_button(button_name):
     wait_for_key = True
+    text(scr, "", "Нажмите клавишу, на которую изменить")
+    pygame.display.update()
     while wait_for_key:
         for event in pygame.event.get():
             if event.type == KEYDOWN:
-                update_setting("Input", button_name, str(f"{event.key} # {pygame.key.name(event.key)}"))
-                input_keys[button_name] = event.key
+                if event.key not in input_keys.values():
+                    update_setting("Input", button_name, f"{event.key} # {pygame.key.name(event.key)}")
+                    input_keys[button_name] = event.key
+                elif event.key in input_keys.values():
+                    for key, value in input_keys.items():
+                        if value == event.key:
+                            update_setting("Input", key, f"{input_keys[button_name]} # {pygame.key.name(input_keys[button_name])}")
+                            update_setting("Input", button_name, f"{input_keys[key]} # {pygame.key.name(input_keys[key])}")
+                            input_keys[key], input_keys[button_name] = input_keys[button_name], input_keys[key]
                 wait_for_key = False
 
 move = False
@@ -135,6 +140,7 @@ game = False
 main_cycle = True
 
 bg_music("music/chapter_four.mp3")
+pygame.mixer.music.pause()
 
 while main_cycle:
     clock.tick(FPS)
@@ -177,7 +183,7 @@ while main_cycle:
                 if change_pause_button.pressed(pygame.mouse.get_pos()):
                     change_button("pause")
                 if default_button.pressed(pygame.mouse.get_pos()):
-                    default_settings()
+                    update_default_settings()
                 if main_menu_button.pressed(pygame.mouse.get_pos()):
                     settings = False
                     main_menu = True
@@ -202,6 +208,7 @@ while main_cycle:
                 if quit_button.pressed(pygame.mouse.get_pos()):
                     main_cycle = False
     elif game:
+        pygame.mixer.music.unpause()
         for event in pygame.event.get():
             if event.type == QUIT:
                 main_cycle = False
@@ -209,6 +216,7 @@ while main_cycle:
                 if event.key == input_keys["pause"]:
                     game = False
                     pause = True
+                    pygame.mixer.music.pause()
                 elif event.key in (input_keys["move_forward"], input_keys["move_backward"], input_keys["move_leftward"], input_keys["move_rightward"]):
                     direction = event.key
                     move = True

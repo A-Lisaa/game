@@ -29,7 +29,7 @@ def update_setting(section, setting, value, path = path_to_settings):
 
     if not config.has_section(section):
         config.add_section(section)
-    config.set(section, setting, value)
+    config.set(section, setting, str(value))
 
     with open(path, "w") as config_file:
         config.write(config_file)
@@ -43,7 +43,7 @@ def get_key(section, setting, delimiter = " ", path = path_to_settings):
     third_step = int(second_step)
     return third_step
 
-def get_all_keys_from_section(input, delimiter = " ", input_section = 0):
+def get_all_keys(input, delimiter = " ", input_section = 0):
     """
     Возвращает все кнопки
     """

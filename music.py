@@ -1,6 +1,6 @@
-from pygame import mixer
+from pygame.mixer import music
 
 def bg_music(filename, repeat = -1, volume = 0.1, start = 0):
-    mixer.music.load(filename)
-    mixer.music.play(repeat, start)
-    mixer.music.set_volume(volume)
+    music.load(filename)
+    music.play(repeat, start)
+    music.set_volume(volume)

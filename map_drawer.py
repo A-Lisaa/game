@@ -3,6 +3,7 @@
 
 from pygame.image import load
 from xml_parser import parse
+from set_settings import get_setting
 
 def map_drawer(scr, path_to_map, x = 0, y = 0, path_to_squares = "images/squares.png", count_of_lines = 16, count_of_column = 30, size_of_plate = 16, shift = 5):
     y_position = y
