@@ -1,17 +1,28 @@
 #!/usr/bin/python3
 #-*- coding: utf-8 -*-
 
+## Ввод с клавиатуры
+#string = ""
+#if pygame.key.name(event.key) in alphabet or pygame.key.name(event.key) == "space":
+#    if pygame.key.name(event.key) == "space":
+#        letter = " "
+#    elif pygame.key.name(event.key) != "space":
+#        letter = pygame.key.name(event.key)
+#        if pygame.key.get_mods() == KMOD_LSHIFT or KMOD_RSHIFT:
+#            letter = letter.upper()
+#    string += letter
+
 import ctypes
 import sys
 import os
 import pygame
 from pygame.locals import *
-from map_drawer import map_drawer
+from map_drawer import Map_Drawer
 from text import text
 from music import bg_music
 from buttons import Text_Button
 from default_settings import set_default_settings
-from set_settings import *
+from _init_settings import *
 
 pygame.init()
 pygame.mixer.init()
@@ -21,63 +32,28 @@ input_keys = {}
 if not os.path.exists("settings.ini"):
     set_default_settings()
 
-get_all_keys(input_keys)
+fps = int(fps)
+screen_height = int(screen_height)
+screen_width = int(screen_width)
 
-FPS = int(get_setting("Graphics", "FPS"))
-SCREEN_HEIGHT = int(get_setting("Graphics", "SCREEN_HEIGHT"))
-SCREEN_WIDTH = int(get_setting("Graphics", "SCREEN_WIDTH"))
-
-position = (SCREEN_HEIGHT / 2, SCREEN_WIDTH / 2)
+position = (screen_height / 2, screen_width / 2)
 start_position = position
 x_pos = start_position[0] - position[0]
 y_pos = start_position[1] - position[1]
 menu_color = (0, 255, 255) # циановый
 actor_image = "images/samantha_back.png"
 
-ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID()
+alphabet = ('1234567890abcdefghijklmnopqrstuvwxyzабвгдеёжзийклмнопрстуфхцчшщъыьэюя')
+
 pygame.display.set_caption("Game")
-pygame.display.set_icon(pygame.image.load("images/icon.ico"))
+pygame.display.set_icon(pygame.image.load("icon.ico"))
 
 clock = pygame.time.Clock()
 scr = pygame.display.set_mode((0, 0), FULLSCREEN)
 
-main_menu_screen = pygame.Surface((SCREEN_HEIGHT, SCREEN_WIDTH), SRCALPHA)
-pause_screen = pygame.Surface((SCREEN_HEIGHT, SCREEN_WIDTH), SRCALPHA)
-settings_screen = pygame.Surface((SCREEN_HEIGHT, SCREEN_WIDTH), SRCALPHA)
-
-all_characters = pygame.sprite.Group()
-
-class Character(pygame.sprite.Sprite):
-    size_of_characters = (int(get_setting("Graphics", "size")), int(get_setting("Graphics", "size")))
-    step = int(get_setting("Graphics", "size"))
-
-    def __init__(self, actor_image_filename, group, position_of_actor):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.transform.scale(pygame.image.load(actor_image_filename), Character.size_of_characters)
-        self.rect = self.image.get_rect(center = position_of_actor)
-        self.add(group)
-
-    def update(self, actor_image_filename, new_position, old_position):
-        if old_position[0] < new_position[0]:
-            self.rect.x -= Character.step
-        elif old_position[0] > new_position[0]:
-            self.rect.x += Character.step
-        if old_position[1] < new_position[1]:
-            self.rect.y -= Character.step
-        elif old_position[1] > new_position[1]:
-            self.rect.y += Character.step
-        self.image = pygame.transform.scale(pygame.image.load(actor_image_filename), Character.size_of_characters)
-
-class Actor:
-    size_of_actor = (int(get_setting("Graphics", "size")), int(get_setting("Graphics", "size")))
-
-    def __init__(self, actor_image_filename):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.transform.scale(pygame.image.load(actor_image_filename), Actor.size_of_actor)
-        self.rect = self.image.get_rect(topleft = (SCREEN_HEIGHT / 2, SCREEN_WIDTH / 2))
-
-    def update(self, actor_image_filename):
-        self.image = pygame.transform.scale(pygame.image.load(actor_image_filename), Actor.size_of_actor)
+main_menu_screen = pygame.Surface((screen_height, screen_width), SRCALPHA)
+pause_screen = pygame.Surface((screen_height, screen_width), SRCALPHA)
+settings_screen = pygame.Surface((screen_height, screen_width), SRCALPHA)
 
 actor = Actor(actor_image)
 character = Character(actor_image, all_characters, (1000, 650))
@@ -96,7 +72,7 @@ change_move_leftward_button = Text_Button()
 change_move_rightward_button = Text_Button()
 change_pause_button = Text_Button()
 
-def calculation_position(direction, position, step = int(get_setting("Graphics", "size")), actor_image = actor_image):
+def calculation_position(direction, position, step = int(size), actor_image = actor_image):
     (x, y) = position
     if direction == input_keys["move_leftward"]:
         x -= step
@@ -112,7 +88,7 @@ def calculation_position(direction, position, step = int(get_setting("Graphics",
         actor_image = "images/samantha_back.png"
     return actor_image, (x, y)
 
-def change_button(button_name):
+def change_button(button_name, alphabet = alphabet):
     wait_for_key = True
     text(scr, "", "Нажмите клавишу, на которую изменить")
     pygame.display.update()
@@ -121,7 +97,7 @@ def change_button(button_name):
             if event.type == KEYDOWN:
                 if event.key not in input_keys.values():
                     update_setting("Input", button_name, f"{event.key} # {pygame.key.name(event.key)}")
-                    input_keys[button_name] = event.key
+                    exec(f"{button_name} = {event.key}")
                 elif event.key in input_keys.values():
                     for key, value in input_keys.items():
                         if value == event.key:
@@ -143,13 +119,13 @@ bg_music("music/chapter_four.mp3")
 pygame.mixer.music.pause()
 
 while main_cycle:
-    clock.tick(FPS)
+    clock.tick(fps)
     if main_menu:
         scr.blit(main_menu_screen, (0, 0))
         main_menu_screen.fill(menu_color)
-        new_game_button.create_button(main_menu_screen, "Начать игру", SCREEN_HEIGHT / 2 - 200 / 2, SCREEN_WIDTH / 2 - 250, 200, 100)
-        settings_button.create_button(main_menu_screen, "Настройки", SCREEN_HEIGHT / 2 - 200 / 2, SCREEN_WIDTH / 2 - 125, 200, 100)
-        quit_button.create_button(main_menu_screen, "Выход", SCREEN_HEIGHT / 2 - 200 / 2, SCREEN_WIDTH / 2, 200, 100)
+        new_game_button.create_button(main_menu_screen, "Начать игру", screen_height / 2 - 200 / 2, screen_width / 2 - 250, 200, 100)
+        settings_button.create_button(main_menu_screen, "Настройки", screen_height / 2 - 200 / 2, screen_width / 2 - 125, 200, 100)
+        quit_button.create_button(main_menu_screen, "Выход", screen_height / 2 - 200 / 2, screen_width / 2, 200, 100)
         for event in pygame.event.get():
             if event.type == MOUSEBUTTONDOWN:
                 if new_game_button.pressed(pygame.mouse.get_pos()):
@@ -163,13 +139,13 @@ while main_cycle:
     elif settings:
         scr.blit(settings_screen, (0, 0))
         settings_screen.fill(menu_color)
-        change_move_forward_button.create_button(settings_screen, f"Вперед ({pygame.key.name(input_keys['move_forward'])})", SCREEN_HEIGHT / 2 - 200 / 2, SCREEN_WIDTH / 2 - 500, 200, 100)
-        change_move_backward_button.create_button(settings_screen, f"Назад ({pygame.key.name(input_keys['move_backward'])})", SCREEN_HEIGHT / 2 - 200 / 2, SCREEN_WIDTH / 2 - 375, 200, 100)
-        change_move_leftward_button.create_button(settings_screen, f"Влево ({pygame.key.name(input_keys['move_leftward'])})", SCREEN_HEIGHT / 2 - 200 / 2, SCREEN_WIDTH / 2 - 250, 200, 100)
-        change_move_rightward_button.create_button(settings_screen, f"Вправо ({pygame.key.name(input_keys['move_rightward'])})", SCREEN_HEIGHT / 2 - 200 / 2, SCREEN_WIDTH / 2 - 125, 200, 100)
-        change_pause_button.create_button(settings_screen, f"Пауза ({pygame.key.name(input_keys['pause'])})", SCREEN_HEIGHT / 2 - 200 / 2, SCREEN_WIDTH / 2, 200, 100)
-        default_button.create_button(settings_screen, "По умолчанию", SCREEN_HEIGHT - 225, SCREEN_WIDTH - 250, 200, 100)
-        main_menu_button.create_button(settings_screen, "В главное меню", SCREEN_HEIGHT - 225, SCREEN_WIDTH - 125, 200, 100)
+        change_move_forward_button.create_button(settings_screen, f"Вперед ({pygame.key.name(input_keys['move_forward'])})", screen_height / 2 - 200 / 2, screen_width / 2 - 500, 200, 100)
+        change_move_backward_button.create_button(settings_screen, f"Назад ({pygame.key.name(input_keys['move_backward'])})", screen_height / 2 - 200 / 2, screen_width / 2 - 375, 200, 100)
+        change_move_leftward_button.create_button(settings_screen, f"Влево ({pygame.key.name(input_keys['move_leftward'])})", screen_height / 2 - 200 / 2, screen_width / 2 - 250, 200, 100)
+        change_move_rightward_button.create_button(settings_screen, f"Вправо ({pygame.key.name(input_keys['move_rightward'])})", screen_height / 2 - 200 / 2, screen_width / 2 - 125, 200, 100)
+        change_pause_button.create_button(settings_screen, f"Пауза ({pygame.key.name(input_keys['pause'])})", screen_height / 2 - 200 / 2, screen_width / 2, 200, 100)
+        default_button.create_button(settings_screen, "По умолчанию", screen_height - 225, screen_width - 250, 200, 100)
+        main_menu_button.create_button(settings_screen, "В главное меню", screen_height - 225, screen_width - 125, 200, 100)
         for event in pygame.event.get():
             if event.type == MOUSEBUTTONDOWN:
                 if change_move_forward_button.pressed(pygame.mouse.get_pos()):
@@ -183,16 +159,16 @@ while main_cycle:
                 if change_pause_button.pressed(pygame.mouse.get_pos()):
                     change_button("pause")
                 if default_button.pressed(pygame.mouse.get_pos()):
-                    update_default_settings()
+                    set_default_settings()
                 if main_menu_button.pressed(pygame.mouse.get_pos()):
                     settings = False
                     main_menu = True
     elif pause:
         scr.blit(pause_screen, (0, 0))
         pause_screen.fill(menu_color)
-        resume_game_button.create_button(pause_screen, "Продолжить игру", SCREEN_HEIGHT / 2 - 200 / 2, SCREEN_WIDTH / 2 - 250, 200, 100)
-        main_menu_button.create_button(pause_screen, "В главное меню", SCREEN_HEIGHT / 2 - 200 / 2, SCREEN_WIDTH / 2 - 125, 200, 100)
-        quit_button.create_button(pause_screen, "Выход", SCREEN_HEIGHT / 2 - 200 / 2, SCREEN_WIDTH / 2, 200, 100)
+        resume_game_button.create_button(pause_screen, "Продолжить игру", screen_height / 2 - 200 / 2, screen_width / 2 - 250, 200, 100)
+        main_menu_button.create_button(pause_screen, "В главное меню", screen_height / 2 - 200 / 2, screen_width / 2 - 125, 200, 100)
+        quit_button.create_button(pause_screen, "Выход", screen_height / 2 - 200 / 2, screen_width / 2, 200, 100)
         for event in pygame.event.get():
             if event.type == KEYDOWN:
                 if event.key == input_keys["pause"]:

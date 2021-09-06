@@ -1,42 +1,43 @@
 #!/usr/bin/python3
 #-*- coding: utf-8 -*-
+import os
+import pygame
+import xml.etree.ElementTree as ET
+from logger import get_logger
+from _init_settings import *
+pygame.init()
+                
+def get_map(map_file: str, tiles_file_ext: str = "png") -> pygame.Surface:
+    root = ET.parse(f"{maps_path}\\{map_file}").getroot()
+    scr = pygame.Surface((int(root.attrib["width"])*int(root.attrib["tilewidth"]), int(root.attrib["height"])*int(root.attrib["tileheight"])))
+    
+    tile_img = pygame.image.load(f'{tiles_path}\\{os.path.splitext(root.find("tileset").attrib["source"])[0]}.{tiles_file_ext}')
+    tiles = {}
+    tile_counter = int(root.find("tileset").attrib["firstgid"])
+    for y in range(0, tile_img.get_height(), int(root.find("editorsettings")[0].attrib["height"])):
+        for x in range(0, tile_img.get_width(), int(root.find("editorsettings")[0].attrib["width"])):
+            tiles[tile_counter] = (x, y, int(root.attrib["tilewidth"]), int(root.attrib["tileheight"]))
+            tile_counter += 1
+            
+    for layer in root.findall("layer"):
+        y = 0
+        for row in layer[0].text.split("\n")[1:-1]:
+            x = 0
+            for elem in row[:-1].split(","):
+                scr.blit(tile_img, (x, y), (tiles[int(elem)]))
+                x += int(root.attrib["tilewidth"])
+            y += int(root.attrib["tileheight"])
+            
+    objects = []
+    
+    return scr, objects
 
-from pygame.image import load
-from xml_parser import parse
-from set_settings import get_setting
+if __name__ == "__main__":
+    scr = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 
-def map_drawer(scr, path_to_map, x = 0, y = 0, path_to_squares = "images/squares.png", count_of_lines = 16, count_of_column = 30, size_of_plate = 16, shift = 5):
-    y_position = y
-
-    list_of_squares = []
-    map = []
-
-    parsed_xml = parse(path_to_map)
-    squares = load(path_to_squares)
-
-    # Создаем список с координатами квадратов для карты
-    for y_position_of_square in range(0, count_of_lines * size_of_plate, size_of_plate):
-        for x_position_of_square in range(0, count_of_column * size_of_plate, size_of_plate):
-            list_of_squares.append((x_position_of_square, y_position_of_square))
-
-    # Создаем список с номерами квадратов из карты
-    for i in range(len(parsed_xml)):
-        splitted_line = (parsed_xml[i].split(","))
-        if i < len(parsed_xml) - 1:
-            del splitted_line[len(splitted_line) - 1]
-        map.append(splitted_line)
-
-    scr.fill((0, 0, 0))
-
-    # Рисуем карту по списку с номерами квадратов карты
-    for line in map:
-        x_position = x
-        for plate_num in line:
-            try:
-                plate = list_of_squares[int(plate_num) - shift]
-                scr.blit(squares, (x_position, y_position), (plate[0], plate[1], size_of_plate, size_of_plate))
-            except Exception:
-                no_plate = load("images/no_plate.png")
-                scr.blit(no_plate, (x_position, y_position))
-            x_position += size_of_plate
-        y_position += size_of_plate
+    while True:
+        map0, map0_objects = get_map("test.tmx")
+        scr.blit(map0, (0, 0))
+        
+        pygame.display.update()
+        pygame.display.flip()
