@@ -17,7 +17,7 @@ import sys
 import os
 import pygame
 from pygame.locals import *
-from map_drawer import Map_Drawer
+from map_drawer import get_map
 from text import text
 from music import bg_music
 from buttons import Text_Button

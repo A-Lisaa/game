@@ -22,7 +22,6 @@ def set_default_settings():
     config["Graphics"] = {"screen_height": ctypes.windll.user32.GetSystemMetrics(0),
                           "screen_width": ctypes.windll.user32.GetSystemMetrics(1),
                           "fps": 60,
-                          "size": 32
                           }
     log.debug("Graphics set to default")
     # Input
@@ -34,7 +33,7 @@ def set_default_settings():
                        "sprint": "left shift"
                        }
     # In-game
-    config["In-game"] = {"sprint_modifier": "1.5"
+    config["In-game"] = {"sprint_modifier": "2"
                          }
     log.debug("Input set to default")
     
