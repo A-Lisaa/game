@@ -1,12 +1,10 @@
 import random
 import sys
-
 import pygame
-
 pygame.init()
 
 
-def quit(): return sys.exit()
+def quit(): sys.exit()
 def chance(x): return True if random.random() < x else False
 
 

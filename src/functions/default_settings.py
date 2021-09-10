@@ -12,15 +12,16 @@ def set_default_settings():
     config = ConfigParser()
     
     # Paths
-    config["Paths"] = {"images_path": r".\\images",
-                       "tiles_path": r".\\images\\tiles",
-                       "characters_path": r".\\images\\characters",
-                       "maps_path": r".\\maps",
+    config["Paths"] = {"images_path": r"..\\images",
+                       "tiles_path": r"..\\images\\tiles",
+                       "characters_path": r"..\\images\\characters",
+                       "maps_path": r"..\\maps",
                        }
     log.debug("Paths set to default")
     # Graphics
     config["Graphics"] = {"screen_height": ctypes.windll.user32.GetSystemMetrics(0),
                           "screen_width": ctypes.windll.user32.GetSystemMetrics(1),
+                          "fullscreen": False,
                           "fps": 60,
                           }
     log.debug("Graphics set to default")

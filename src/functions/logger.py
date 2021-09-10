@@ -1,3 +1,4 @@
+import __init__
 import os
 import logging
 from __init import logs_path
