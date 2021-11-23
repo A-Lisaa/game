@@ -7,6 +7,7 @@ for path, subdirs, _ in os.walk(src_path):
     # if "__pycache__" in subdirs:
     #     subdirs.remove("__pycache__")
     if subdirs:
-        print(subdirs)
         for subdir in subdirs:
             sys.path.append(f"{path}\\{subdir}")
+            
+# TODO: Change what uses eval or exec to dicts

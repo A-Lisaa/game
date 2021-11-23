@@ -1,3 +1,4 @@
+import __init__
 import pygame
 from character_class import Character
 pygame.init()

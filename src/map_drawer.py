@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 #-*- coding: utf-8 -*-
+import __init__
 import os
 import pygame
 import xml.etree.ElementTree as ET
@@ -23,10 +24,10 @@ def get_map(map_file: str, tiles_file_ext: str = "png") -> tuple:
         tuple: tuple containing pygame.Surface with map and objects sprite
     """
     log = get_logger(__file__)
-    root = ET.parse(f"{maps_path}\\{map_file}").getroot()
+    root = ET.parse(f"{settings['maps_path']}\\{map_file}").getroot()
     scr = pygame.Surface((int(root.attrib["width"])*int(root.attrib["tilewidth"]), int(root.attrib["height"])*int(root.attrib["tileheight"])))
     
-    tile_img = pygame.image.load(f'{tiles_path}\\{os.path.splitext(os.path.split(root.find("tileset").attrib["source"])[-1])[0]}.{tiles_file_ext}').convert_alpha()
+    tile_img = pygame.image.load(f'{settings["tiles_path"]}\\{os.path.splitext(os.path.split(root.find("tileset").attrib["source"])[-1])[0]}.{tiles_file_ext}').convert_alpha()
     tiles = {}
     tile_counter = int(root.find("tileset").attrib["firstgid"])
     for y in range(0, tile_img.get_height(), int(root.find("editorsettings")[0].attrib["height"])):

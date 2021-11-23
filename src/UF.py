@@ -1,3 +1,4 @@
+import __init__
 import random
 import sys
 import pygame

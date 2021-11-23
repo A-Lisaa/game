@@ -11,7 +11,7 @@
 #        if pygame.key.get_mods() == KMOD_LSHIFT or KMOD_RSHIFT:
 #            letter = letter.upper()
 #    string += letter
-
+import __init__
 import ctypes
 import sys
 import os
