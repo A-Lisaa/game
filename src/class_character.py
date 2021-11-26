@@ -3,32 +3,38 @@ import pygame
 import pygame.locals
 
 from _init_settings import settings
+from class_equipment import Equipment
 from logger import get_logger
 from class_inventory import Inventory
-from class_money import Money
 
-default_health = 100
+DEFAULT_COLOR = (0, 0, 0)
+DEFAULT_HEALTH = 100
 
-@attr.s
+
+@attr.s(hash=True)
 class CharacterData:
     name: str = attr.ib()
-    color: tuple[int] | list[int] = attr.ib()
 
-    character_sprite_folder: str = attr.ib()
-    character_position: tuple = attr.ib()
-
-    start_direction: str = attr.ib(default="backward")
+    sprite_folder: str = attr.ib()
+    color: tuple[int] | list[int] = attr.ib(default=DEFAULT_COLOR)
+    position: tuple | list = attr.ib(default=(0, 0, 0))
+    direction: str = attr.ib(default="backward")
 
     isAlive: bool | int = attr.ib(default=True)
-    health: float = attr.ib(default=default_health)
-    health_max: float = attr.ib(default=default_health)
+    health: float = attr.ib(default=DEFAULT_HEALTH)
+    health_max: float = attr.ib(default=DEFAULT_HEALTH)
     poison: bool | int = attr.ib(default=False)
 
-    inventory: Inventory = attr.ib(default=Inventory())
-    money: Money = attr.ib(default=Money())
+    inventory: Inventory = attr.ib(default=Inventory()) # This should be overloaded in __init__ of child
+    equipment: Equipment = attr.ib(default=Equipment())
 
 class Character(CharacterData):
-    pass
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.inventory = Inventory()
+
+    def update(self):
+        pass
 
 # class Character(CharacterData, pygame.sprite.Sprite):
 #     def __init__(self):
@@ -88,7 +94,7 @@ class Character(CharacterData):
     #             speed *= float(settings["sprint_modifier"])
     #             for iter_key in keys[::-1]:
     #                 if iter_key in (settings["move_leftward"], settings["move_rightward"],
-    #                                 settings["move_forward"], settings["move_backward"]): 
+    #                                 settings["move_forward"], settings["move_backward"]):
     #                     key = iter_key
     #         if key in settings["move_leftward"]:
     #             actor.rect.x -= speed
