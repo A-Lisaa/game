@@ -2,36 +2,60 @@ import attr
 import pygame
 import pygame.locals
 
-from _init_settings import settings
-from class_equipment import Equipment
+from __init_settings__ import settings
+from class_effect import Effect
+from class_item_equipment import ItemEquipment
 from logger import get_logger
-from class_inventory import Inventory
-
-DEFAULT_COLOR = (0, 0, 0)
-DEFAULT_HEALTH = 100
+from class_storage import Storage
+from list_item_equipment import default_head
+from constants import *
 
 
 @attr.s(hash=True)
-class CharacterData:
+class Character():
+    # ! Everything with something mutable should be overloaded in __init__ of a child
+    # Base info
     name: str = attr.ib()
-
     sprite_folder: str = attr.ib()
-    color: tuple[int] | list[int] = attr.ib(default=DEFAULT_COLOR)
-    position: tuple | list = attr.ib(default=(0, 0, 0))
-    direction: str = attr.ib(default="backward")
+    color: tuple[int, int, int] = attr.ib(default=DEFAULT_COLOR)
 
+    # Draw info
+    position: tuple | list = attr.ib(default=DEFAULT_POSITION)
+    direction: str = attr.ib(default=DEFAULT_DIRECTION)
+
+    # Health stats
     isAlive: bool | int = attr.ib(default=True)
     health: float = attr.ib(default=DEFAULT_HEALTH)
     health_max: float = attr.ib(default=DEFAULT_HEALTH)
     poison: bool | int = attr.ib(default=False)
 
-    inventory: Inventory = attr.ib(default=Inventory()) # This should be overloaded in __init__ of child
-    equipment: Equipment = attr.ib(default=Equipment())
+    # Equipment stats
+    head_protection: float = attr.ib(default=0)
+    body_protection: float = attr.ib(default=0)
 
-class Character(CharacterData):
+    # ! Mutables
+    effects: list[Effect] = attr.ib(factory=list[Effect])
+    equipment: dict[str, ItemEquipment] = attr.ib(factory=dict[str, ItemEquipment])
+    inventory: Storage = attr.ib(default=Storage())
+
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.inventory = Inventory()
+        self.effects = []
+        self.equipment = {}
+        self.inventory = Storage()
+
+    def equip(self, equipment_item: ItemEquipment):
+        self.equipment[equipment_item.slot] = equipment_item
+        for buff in equipment_item.buffs:
+            setattr(self, buff.stat, getattr(self, buff.stat) + buff.strength)
+
+    def unequip(self, equipment_item: ItemEquipment):
+        self.equipment[equipment_item.slot] = eval(f"default_{equipment_item.slot}")
+        for buff in equipment_item.buffs:
+            setattr(self, buff.stat, getattr(self, buff.stat) - buff.strength)
+
+    def add_effect(self, effect: Effect):
+        if not effect in self.effects:
+            self.effects.append(effect)
 
     def update(self):
         pass

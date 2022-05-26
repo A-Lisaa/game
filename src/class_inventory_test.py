@@ -20,20 +20,11 @@ class InventoryTests(unittest.TestCase):
 
         self.assertNotIn(bread, sammy.inventory.items)
 
-    def test_use_item(self):
-        sammy = Character("Samantha", (0, 165, 255), "../images/characters/test_character")
-
-        sammy.health -= 90
-        sammy.inventory.add_item(bread)
-        sammy.inventory.use_item(sammy, bread)
-
-        self.assertEqual(sammy.health, 30)
-
     def test_show_info(self):
         sammy = Character("Samantha", (0, 165, 255), "../images/characters/test_character")
 
         sammy.inventory.add_item(bread, 15)
-        self.assertEqual(bread.info, "Just a regular bread, heals 20 hp")
+        self.assertEqual(bread.info, "Just a regular bread, heals 20 hp.")
 
 if __name__ == "__main__":
     unittest.main()

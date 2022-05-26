@@ -1,7 +1,7 @@
 import __init__
 import os
 import pygame
-from _init_settings import settings
+from __init_settings__ import settings
 from typing import Union
 
 class Gif:

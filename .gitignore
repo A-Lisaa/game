@@ -139,3 +139,6 @@ settings.ini
 
 # Logs folder
 logs
+
+# Appdata folder
+__appdata__

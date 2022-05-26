@@ -22,7 +22,7 @@ from text import text
 from music import bg_music
 from buttons import Text_Button
 from default_settings import set_default_settings
-from _init_settings import *
+from __init_settings__ import *
 
 pygame.init()
 pygame.mixer.init()

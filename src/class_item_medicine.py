@@ -1,36 +1,32 @@
 import attr
 
-from class_item import Item, ItemData
+from class_item import Item
 from class_character import Character
+from class_effect import Effect
+from IUsable import IUsable
 
 
 @attr.s(hash=True)
-class ItemMedicineEffectData:
-    name: str = attr.ib()
-    strength: float | bool = attr.ib()
-    added: bool = attr.ib()
+class ItemMedicine(Item, IUsable):
+    effects: tuple[Effect] = attr.ib()
 
+    def context_menu(self):
+        # Example:
+        # 1 - Use item
+        # 2 - Info
+        # 3 - Drop
+        pass
 
-class ItemMedicineEffect(ItemMedicineEffectData):
-    pass
-
-
-@attr.s(hash=True)
-class ItemMedicineData(ItemData):
-    effects: tuple[ItemMedicineEffect] = attr.ib()
-
-
-class ItemMedicine(Item, ItemMedicineData):
     def use(self, character: Character):
         for effect in self.effects:
             if effect.added:
-                current_character_stat = getattr(character, effect.name)
+                current_character_stat = getattr(character, effect.stat)
                 final_character_stat = current_character_stat + effect.strength
                 try:
-                    max_character_stat = getattr(character, f"{effect.name}_max")
+                    max_character_stat = getattr(character, f"{effect.stat}_max")
                     final_character_stat = min(final_character_stat, max_character_stat)
                 except AttributeError:
                     pass
-                setattr(character, effect.name, final_character_stat)
+                setattr(character, effect.stat, final_character_stat)
             else:
-                setattr(character, effect.name, effect.strength)
+                setattr(character, effect.stat, effect.strength)

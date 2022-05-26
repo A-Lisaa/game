@@ -1,16 +1,16 @@
+from logging import Logger
 import attr
+
 from logger import get_logger
 
 
 @attr.s()
-class StorageData:
-    items: dict[object, int] = attr.ib(factory=dict)
+class Storage:
+    log: Logger = get_logger(__file__)
+    items: dict[object, int] = attr.ib(factory=dict[object, int])
 
-
-class Storage(StorageData):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.log = get_logger(__file__)
+    def __init__(self):
+        self.items = {}
 
     def set_item(self, item: object, amount: int = 1):
         self.items[item] = amount
@@ -41,10 +41,11 @@ class Storage(StorageData):
         if item in self.items:
             self.items[item] -= min(amount, self.items[item])
         else:
-            print(f"No item {item.name} in Storage")
+            print(f"No item {item} in Storage")
             return
 
         self.log.debug("Removed %i of %s. Total amount: %i", amount, item, self.items[item])
 
+        # We remove an item from items dict if there are 0 of this item
         if self.items[item] == 0:
             self.items.pop(item)

@@ -6,7 +6,7 @@ import actor_class
 import UF
 from map_drawer import get_map
 from pygame.locals import *
-from _init_settings import *
+from __init_settings__ import *
 from characters import *
 
 pygame.init()

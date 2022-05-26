@@ -1,12 +1,12 @@
-from math import e
-from decimal import Decimal, getcontext
+class IUsable:
+    pass
 
-getcontext().prec = 100000
-res = 0
-for i in range(1000):
-    fact = Decimal(1)
-    for i in range(2, i):
-        fact *= Decimal(i)
-    res += Decimal(1)/fact
-print(e)
-print(res)
+class BaseClass:
+    pass
+
+class Usable(BaseClass, IUsable):
+    pass
+
+
+u = Usable()
+print(bool(isinstance(u, IUsable)))

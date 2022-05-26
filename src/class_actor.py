@@ -1,6 +1,6 @@
 import pygame
 
-from _init_settings import settings
+from __init_settings__ import settings
 from character_class import Character
 
 pygame.init()

@@ -1,0 +1,23 @@
+{
+    "stash1":
+    {
+        "name": "Stash 1",
+        "contents":
+        {
+            "PM": 1,
+            "ammo_9x18": 40,
+            "vodka": 5
+        }
+    },
+    "stash2":
+    {
+        "name": "Stash 2",
+        "contents":
+        {
+            "AK74": 1,
+            "ammo_5.45x39": 120,
+            "bandage": 7,
+            "medkit_regular": 3
+        }
+    }
+}

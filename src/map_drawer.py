@@ -5,7 +5,7 @@ import os
 import pygame
 import xml.etree.ElementTree as ET
 from logger import get_logger
-from _init_settings import *
+from __init_settings__ import *
 pygame.init()
 
 class Objects(pygame.sprite.Sprite):

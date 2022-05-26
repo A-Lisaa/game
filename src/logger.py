@@ -1,7 +1,7 @@
 import logging
 import os
 
-from __init import logs_path
+from init_paths import logs_path
 
 
 # TODO: Logging of one file can be at logging of another
